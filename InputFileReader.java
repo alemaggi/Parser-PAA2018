@@ -45,6 +45,7 @@ public class InputFileReader {
 			
 			while(file.hasNext()) {
 				String line = file.nextLine();
+				line = line.trim();
 				if (!line.isEmpty()) {
                     writer.write(line);
                     writer.write("\n");

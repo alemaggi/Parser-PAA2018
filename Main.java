@@ -11,8 +11,12 @@ public class Main {
 		T.readInstructions(fr.getText());
 		T.createTrees();
 		
-        //una volta controllate le parentesi il resto del controllo sintattico si puo' fare sul vettore
-		//i numeri e i nomi var sono sempre nodi foglia
+		for (int i = 0; i < T.getInstructionTrees().size(); i++) {
+			TreeVisitor TV = new TreeVisitor(T.getInstructionTrees().get(i));
+			TV.postorderIter();
+			System.out.println("\n");
+		}
+
 	}
 
 }

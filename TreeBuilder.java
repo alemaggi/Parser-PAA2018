@@ -2,32 +2,59 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
 public class TreeBuilder {
 
 	private ArrayList<String[]> instructions = new ArrayList<String[]>();
 	private ArrayList<ExprTree> instructionTrees = new ArrayList<ExprTree>();
 	
+	public ArrayList<ExprTree> getInstructionTrees() {
+		return instructionTrees;
+	}
+
+	public void setInstructionTrees(ArrayList<ExprTree> instructionTrees) {
+		this.instructionTrees = instructionTrees;
+	}
+
 	private void createInstructions(String line) throws IOException  {
+		String newLine;
+		
 		SyntaxControl sc = new SyntaxControl();
 		line = line.substring(1, line.length()-1);
 		line = line.replace("(", " ( ");
 		line = line.replace(")", " ) ");
 		String[] expr = line.split(" ");
-		//sc.SyntaxCheck();
+		if (!sc.ParMatching(arrayToString(expr))) {
+			System.out.println("Input non accettato, il file deve avere un' istruzione per riga");
+			System.exit(1);
+		}
+		sc.SyntaxCheck(expr);
 		
 		/*
 		for ( String x : expr ) 
 			System.out.println(x);
-		System.out.println("----"); //Stamoa le istruzioni una alla volta
+		System.out.println("----"); //Stampa le istruzioni una alla volta
 		*/
 		
 		instructions.add(expr);
 		//System.out.println("----");
 	} 
 	
+	private String arrayToString(String[] arrayOfString) {
+		String tmp = "";
+		for (String s : arrayOfString) {
+			tmp = tmp + s;
+		}
+		return tmp;
+	}
+	
 	public void readInstructions(BufferedReader text) throws IOException {
 		SyntaxControl sc = new SyntaxControl();
 		String line = text.readLine();
+		if (!sc.ParMatching(line)) {
+			System.out.println("Parentesi non bilanciate");
+			System.exit(1);
+		}
 		sc.ParMatching(line);
 		while (line != null) {
 			createInstructions(line);
@@ -72,9 +99,16 @@ public class TreeBuilder {
 			ET.getCurrentNode().setValue("DIV");
 			break;
 		case 7 : 
-			ET.setCurrentNode(ET.getCurrentNode().getLC());
-			ET.getCurrentNode().setRC(new TokenNode(" ",null,null,ET.getCurrentNode()));
-			ET.getCurrentNode().setLC(new TokenNode(" ",null,null,ET.getCurrentNode()));
+			if (ET.getCurrentNode().getLC().getValue() == " ") {
+				ET.setCurrentNode(ET.getCurrentNode().getLC());
+				ET.getCurrentNode().setRC(new TokenNode(" ",null,null,ET.getCurrentNode()));
+				ET.getCurrentNode().setLC(new TokenNode(" ",null,null,ET.getCurrentNode()));
+			}
+			else {
+				ET.setCurrentNode(ET.getCurrentNode().getRC());
+				ET.getCurrentNode().setRC(new TokenNode(" ",null,null,ET.getCurrentNode()));
+				ET.getCurrentNode().setLC(new TokenNode(" ",null,null,ET.getCurrentNode()));
+			}
 			break;
 		case 8 :
 			ET.setCurrentNode(ET.getCurrentNode().getFather());
@@ -82,10 +116,10 @@ public class TreeBuilder {
 		case 9 :
 			break;
 		default :
-			if(ET.getCurrentNode().getRC().getValue() == " " )
-				ET.getCurrentNode().getRC().setValue(value);
-			else
+			if(ET.getCurrentNode().getLC().getValue() == " " )
 				ET.getCurrentNode().getLC().setValue(value);
+			else
+				ET.getCurrentNode().getRC().setValue(value);
 		}
 		//System.out.println(ET.getCurrentNode().getValue() + " lch : " + ET.getCurrentNode().getLC().getValue()+ " rch : " + ET.getCurrentNode().getRC().getValue());
 	}
