@@ -2,7 +2,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
+/**
+ * Classe per la costruzioni degli alberi di istruzioni
+ * Ha come attributi:
+ * 	instructions
+ * 	instructionTrees
+ */
 public class TreeBuilder {
 
 	private ArrayList<String[]> instructions = new ArrayList<String[]>();
@@ -16,52 +21,71 @@ public class TreeBuilder {
 		this.instructionTrees = instructionTrees;
 	}
 
-	private void createInstructions(String line) throws IOException  {
-		String newLine;
+	/**
+	 * Metodo per creare le istruzioni
+	 * @param line
+	 * @return
+	 * @throws IOException
+	 */
+	private int createInstructions(String line) throws IOException {
 		
-		SyntaxControl sc = new SyntaxControl();
 		line = line.substring(1, line.length()-1);
 		line = line.replace("(", " ( ");
 		line = line.replace(")", " ) ");
 		String[] expr = line.split(" ");
-		if (!sc.ParMatching(arrayToString(expr))) {
-			System.out.println("Input non accettato, il file deve avere un' istruzione per riga");
-			System.exit(1);
+
+		int expectedTokN = 0;
+		int realTokN = 0;
+		for(int i = 0; i < expr.length; i++) {
+			//Conto i token
+			if(expr[i].equals("SET") || expr[i].equals("GET")
+			||	expr[i].equals("ADD") || expr[i].equals("SUB") || expr[i].equals("MUL") || expr[i].equals("DIV")
+			||  expr[i].matches("^[\\$_a-zA-Z]+[\\$_\\w]*$")
+			||  expr[i].matches("-?\\d+"))
+			{
+				realTokN++;
+			}
+			//SET o GET richiede 2 token --> se stesso e un valore 
+			if(expr[i].equals("SET")) {
+				expectedTokN += 3;
+			}
+			//È un operazione --> richiede altri 2 token
+			if(expr[i].equals("ADD") || expr[i].equals("SUB") || expr[i].equals("MUL") || expr[i].equals("DIV") || expr[i].equals("GET")) {
+				expectedTokN += 2;
+			}		
 		}
-		sc.SyntaxCheck(expr);
-		
-		/*
-		for ( String x : expr ) 
-			System.out.println(x);
-		System.out.println("----"); //Stampa le istruzioni una alla volta
-		*/
-		
-		instructions.add(expr);
-		//System.out.println("----");
+		if(expectedTokN == realTokN) {
+			instructions.add(expr);
+			return 0;
+		}
+		else
+			return 1;
 	} 
 	
-	private String arrayToString(String[] arrayOfString) {
-		String tmp = "";
-		for (String s : arrayOfString) {
-			tmp = tmp + s;
-		}
-		return tmp;
-	}
-	
-	public void readInstructions(BufferedReader text) throws IOException {
-		SyntaxControl sc = new SyntaxControl();
+	/**
+	 * Metodo per leggere le istruzioni e rilevare eventuali errori come ad esempio un simbolo davanti al nome di una variabile --> -var (Non accettabile)
+	 * @param text
+	 * @return
+	 * @throws IOException
+	 */
+	public int readInstructions(BufferedReader text) throws IOException {
+		//SyntaxControl sc = new SyntaxControl();
+		int i = 1;
 		String line = text.readLine();
-		if (!sc.ParMatching(line)) {
-			System.out.println("Parentesi non bilanciate");
-			System.exit(1);
-		}
-		sc.ParMatching(line);
 		while (line != null) {
-			createInstructions(line);
+			if(createInstructions(line) != 0) {
+				System.out.println("ERROR: Invalid or missing token at line " + i);
+				return 0;
+			}
 			line = text.readLine();
+			i++;
 		}
+		return 1;
 	}
-	
+
+	/**
+	 * Metodo di creazione degli alberi
+	 */
 	public void createTrees() {
 		int OpCode;
 		TokenCodes TC = new TokenCodes();
@@ -71,14 +95,18 @@ public class TreeBuilder {
 				OpCode = TC.identifyToken(instructions.get(i)[j]);
 				addNode(ET,OpCode,instructions.get(i)[j]);
 			}
-			ET.printBinaryTree(ET.getRoot(), 0);
-			System.out.println(" ");
+
 			instructionTrees.add(ET);
 		}
 	}
 
+	/**
+	 * Metodo per aggiungere un nodo all' albero
+	 * @param ET
+	 * @param opCode
+	 * @param value
+	 */
 	private void addNode(ExprTree ET, int opCode, String value) {
-		//System.out.println("Sto valutando -" + value + "- nel nodo " + ET.getCurrentNode() + " " + opCode);
 		switch (opCode) {
 		case 1 : 
 			ET.getRoot().setValue("GET");
@@ -120,8 +148,6 @@ public class TreeBuilder {
 				ET.getCurrentNode().getLC().setValue(value);
 			else
 				ET.getCurrentNode().getRC().setValue(value);
-		}
-		//System.out.println(ET.getCurrentNode().getValue() + " lch : " + ET.getCurrentNode().getLC().getValue()+ " rch : " + ET.getCurrentNode().getRC().getValue());
+		}	
 	}
-	
 }

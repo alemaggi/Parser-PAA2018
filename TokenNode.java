@@ -1,3 +1,6 @@
+/**
+ * Classe per la gestione dei nodi dell' albero sintattico
+ */
 
 public class TokenNode {
 	
@@ -5,14 +8,24 @@ public class TokenNode {
 	private TokenNode LC;
 	private TokenNode RC;
 	private TokenNode father;
-	
-	public TokenNode(String value, TokenNode lC, TokenNode rC, TokenNode father) {
+    
+    /**
+     * Costruttore con parametri
+     * @param value
+     * @param lC
+     * @param rC
+     * @param father
+     */
+    public TokenNode(String value, TokenNode lC, TokenNode rC, TokenNode father) {
 		this.value = value;
 		LC = lC;
 		RC = rC;
 		this.father = father;
 	}
-	
+	/**
+     * Costruttore con parametro
+     * @param n
+     */
 	public TokenNode(TokenNode n) {
 		value = n.value;
 		LC = n.LC;
@@ -20,6 +33,9 @@ public class TokenNode {
 		father = n.father;
 	}
 
+    /**
+     * Setter e Getter per la classe
+     */
 	public String getValue() {
 		return value;
 	}

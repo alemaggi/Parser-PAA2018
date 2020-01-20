@@ -1,4 +1,9 @@
-
+/**
+ * Classe ExprTree usata per gestione degli alberi di espressioni
+ * Ha come attributi:
+ * 	private TokenNode root;
+	private TokenNode CurrentNode;
+ */
 public class ExprTree {
 	
 	private TokenNode root;
@@ -11,6 +16,10 @@ public class ExprTree {
 		CurrentNode = root;
 	}
 
+	/**
+	 * Getters & Setters
+	 * @return
+	 */
 	public TokenNode getRoot() {
 		return root;
 	}
@@ -27,6 +36,9 @@ public class ExprTree {
 		CurrentNode = currentNode;
 	}
 	
+	/**
+	 * Metodo usato durante lo sviluppo per stampare gli alberi in un formato comodo da leggere e controllarne la correttezza
+	 */
 	public void printBinaryTree(TokenNode root, int level){
 	    if(root==null)
 	         return;
@@ -39,7 +51,5 @@ public class ExprTree {
 	    else
 	        System.out.println(root.getValue());
 	    printBinaryTree(root.getLC(), level+1);
-	}    
-	
-
+	}
 }
